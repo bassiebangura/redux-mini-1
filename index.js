@@ -1,6 +1,6 @@
 //what Library Code will look like
 
-const store = CreateStore(app);
+
 function CreateStore(reducer) {
 	let state;
 
@@ -102,7 +102,7 @@ function app(state = {}, action) {
 	}
 }
 
-const store = createStore(app)
+const store = CreateStore(app)
 
 store.subscribe(() => {
 	console.log('The new state is: ', store.getState())
