@@ -1,4 +1,6 @@
 //what Library Code will look like
+
+const store = CreateStore(app);
 function CreateStore(reducer) {
 	let state;
 
@@ -6,16 +8,16 @@ function CreateStore(reducer) {
 
 	const getState = () => state;
 
-	const subscribe = listener => {
+	const subscribe = (listener) => {
 		listeners.push(listener);
 		return () => {
-			listeners = listeners.filter(l => l !== listener);
+			listeners = listeners.filter((l) => l !== listener);
 		};
 	};
 
-	const dispatch = action => {
+	const dispatch = (action) => {
 		state = reducer(state, action);
-		listeners.forEach(listener => listener());
+		listeners.forEach((listener) => listener());
 	};
 
 	return {
@@ -25,20 +27,153 @@ function CreateStore(reducer) {
 	};
 }
 
-const store = createStore();
-
-const unscribe = store.subscribe(() => {
-	console.log("Hello Everybody");
-});
-
-//What actual developer code will look like
-function appReducer(state = [], action) {
-	if (action.type === "ADD_TODO") {
-		return [...state, action.payload];
-	} else {
-		return state;
+//Actual app code is as below
+function todos(state = [], action) {
+	switch (action.type) {
+		case 'ADD_TODO':
+			return [...state, action.todo];
+		case 'REMOVE_TODO':
+			return state.filter((todo) => todo.id !== action.id);
+		case 'TOGGLE_TODO':
+			return state.map(
+				(todo) => (todo.id !== action.id ? todo : Object.assign({}, todo, { complete: !todo.complete }))
+			);
+		default:
+			return state;
 	}
 }
 
-//Actual developer code creating store and passing reducer needed by library code.
-const store = CreateStore(appReducer);
+function goals(state = [], action) {
+	switch (action.type) {
+		case 'ADD_GOAL':
+			return [...state, action.goal];
+		case 'REMOVE_GOAL':
+			return state.filter((goal) => goal.id !== action.id);
+		default:
+			return state;
+	}
+}
+
+function app(state = {}, action) {
+	return {
+		todos: todos(state.todos, action),
+		goals: goals(state.goals, action)
+	};
+}
+
+
+store.subscribe(() => {
+	console.log('The new state is: ', store.getState());
+});
+
+
+
+store.dispatch({
+	type: 'ADD_TODO',
+	todo: {
+		id: 0,
+		name: 'Walk the dog',
+		complete: false
+	}
+});
+
+store.dispatch({
+	type: 'ADD_TODO',
+	todo: {
+		id: 1,
+		name: 'Wash the car',
+		complete: false
+	}
+});
+
+store.dispatch({
+	type: 'ADD_TODO',
+	todo: {
+		id: 2,
+		name: 'Go to the gym',
+		complete: true
+	}
+});
+
+store.dispatch({
+	type: 'REMOVE_TODO',
+	id: 1
+});
+
+store.dispatch({
+	type: 'TOGGLE_TODO',
+	id: 0
+});
+
+store.dispatch({
+	type: 'ADD_GOAL',
+	goal: {
+		id: 0,
+		name: 'Learn Redux'
+	}
+});
+
+store.dispatch({
+	type: 'ADD_GOAL',
+	goal: {
+		id: 1,
+		name: 'Lose 20 pounds'
+	}
+});
+
+store.dispatch({
+	type: 'REMOVE_GOAL',
+	id: 0
+});
+// //What actual developer code will look like
+// function todosReducer(state = [], action) {
+// 	switch (action.type) {
+// 		case "ADD_TODO":
+// 			return [...state, action.todo];
+// 		case "REMOVE_TODO":
+// 			return state.filter(todo => todo.id !== action.id);
+// 		case "TOGGLE_TODO":
+// 			return state.map(todo =>
+// 				todo.id !== action.id
+// 					? todo
+// 					: Object.assign({}, todo, { complete: !todo.complete })
+// 			);
+// 		default:
+// 			return state;
+// 	}
+// }
+
+// function goalsReducer(state = [], action) {
+//     switch (action.type) {
+//         case 'ADD_GOAL':
+//             return [...state, action.todo]
+//         case 'REMOVE_GOAL':
+//             return state.filter((goal) => goal.id !== action.id)
+//         default:
+//             return state
+//     }
+// }
+
+// function app(state = {}, action) {
+//     return {
+//         todos: todos(state.todos, action),
+//         goals: goals(state.goals, action),
+//     }
+// }
+
+// //Actual developer code creating store and passing reducer needed by library code.
+
+// const store = createStore(app)
+
+// store.subscribe(() => {
+//     console.log('The new state is: ', store.getState())
+// })
+
+// store.dispatch({
+//     type: 'ADD_TODO',
+//     todo: {
+//         id: 0,
+//         name: 'Learn Redux',
+//         complete: false
+//     }
+// })
