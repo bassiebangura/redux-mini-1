@@ -1,13 +1,15 @@
 //what Library Code will look like
 
 function CreateStore(reducer) {
-	let state;
+	let state; //initial state is undefined
 
-	let listeners = [];
+	let listeners = []; //stores listeners that listen for change in state
 
-	const getState = () => state;
+	const getState = () => state; //returns current state in store
 
 	const subscribe = (listener) => {
+		//add listeners and also returns a function,
+		//that can be used to unsubscribe that listener
 		listeners.push(listener);
 		return () => {
 			listeners = listeners.filter((l) => l !== listener);
@@ -15,6 +17,8 @@ function CreateStore(reducer) {
 	};
 
 	const dispatch = (action) => {
+		//dispatch an action by making the required update
+		//to state using the reducer passed when store was created.
 		state = reducer(state, action);
 		listeners.forEach((listener) => listener());
 	};
@@ -122,15 +126,19 @@ let addTodo = () => {
 	input.value = '';
 	let newTodoLiElement = createEl('li');
 	newTodoLiElement.innerHTML = name;
-	todosListUl.appendChild(newTodoLiElement);
-
-	store.dispatch(
-		addTodoAction({
-			id: generateId(),
-			name,
-			complete: false
-		})
-	);
+	newTodoLiElement.className = 'addedTodoItem';
+	let itemID = generateId();
+	newTodoLiElement.id = itemID;
+	if (name) {
+		todosListUl.appendChild(newTodoLiElement);
+		store.dispatch(
+			addTodoAction({
+				id: itemID,
+				name,
+				complete: false
+			})
+		);
+	}
 };
 
 let addGoal = () => {
@@ -139,20 +147,45 @@ let addGoal = () => {
 	const name = input.value;
 	input.value = '';
 	let newGoalLiElement = createEl('li');
+	newGoalLiElement.className = 'addedGoalItem';
 	newGoalLiElement.innerHTML = name;
-	goalsListUl.appendChild(newGoalLiElement);
-
-	store.dispatch(
-		addGoalAction({
-			id: generateId(),
-			name
-		})
-	);
+	if (name) {
+		goalsListUl.appendChild(newGoalLiElement);
+		store.dispatch(
+			addGoalAction({
+				id: generateId(),
+				name
+			})
+		);
+	}
 };
 
+let toggleTodo = (e) => {
+	if (e.target.className === 'addedTodoItem') {
+		let id = e.target.id;
+		store.dispatch(toggleTodoAction(id)); //this dispatch toggle completion state of todo item
+		let itemToToggle = store.getState().todos.filter((todo) => todo.id === id);
+		let completionTest = itemToToggle[0].complete;
+
+		if (completionTest) {
+			e.target.style.textDecoration = 'line-through';
+		} else {
+			e.target.style.textDecoration = 'none';
+		}
+	}
+};
+
+let toggleGoal = (e) => {
+	if (e.target.className === 'addedGoalItem') {
+		console.log('you clicked');
+		e.target.style.textDecoration = 'line-through';
+	}
+};
 document.getElementById('todoBtn').addEventListener('click', addTodo);
 
 document.getElementById('goalBtn').addEventListener('click', addGoal);
+
+document.getElementById('todos').addEventListener('click', toggleTodo);
 
 // store.dispatch(addTodoAction({
 // 	id: 0,
