@@ -113,110 +113,81 @@ const store = CreateStore(app);
 
 store.subscribe(() => {
 	console.log('The new state is: ', store.getState());
+	const { todos, goals } = store.getState();
+
+	//resets part of UI that can change when an event occurs
+	document.getElementById('todos').innerHTML = '';
+	document.getElementById('goals').innerHTML = '';
+
+	todos.forEach(addTodoToDOM);
+	goals.forEach(addGoalToDOM);
 });
-
-let createEl = (el) => {
-	return document.createElement(el);
-};
-
 let addTodo = () => {
-	const input = document.getElementById('todo');
-	const todosListUl = document.getElementById('todos');
-	const name = input.value;
+	let input = document.getElementById('todo');
+	let name = input.value;
 	input.value = '';
-	let newTodoLiElement = createEl('li');
-	newTodoLiElement.innerHTML = name;
-	newTodoLiElement.className = 'addedTodoItem';
-	let itemID = generateId();
-	newTodoLiElement.id = itemID;
-	if (name) {
-		todosListUl.appendChild(newTodoLiElement);
-		store.dispatch(
-			addTodoAction({
-				id: itemID,
-				name,
-				complete: false
-			})
-		);
-	}
+
+	store.dispatch(
+		addTodoAction({
+			id: generateId(),
+			name
+		})
+	);
 };
 
+let createRemoveBtn = (onClick) => {
+	//creates and return btn with event listener attached to it
+	//and the callback is passed when fxn is called
+	let removeBtn = document.createElement('button');
+	removeBtn.innerHTML = 'x';
+	removeBtn.addEventListener('click', onClick);
+	return removeBtn;
+};
+let addTodoToDOM = (todo) => {
+	//subscribe this fxn to store as listener, is called when state changes
+
+	let removeBtn = createRemoveBtn(() => {
+		store.dispatch(removeTodoAction(todo.id));
+	});
+
+	const node = document.createElement('li');
+	const text = document.createTextNode(todo.name);
+	node.appendChild(text);
+	node.appendChild(removeBtn);
+	node.style.textDecoration = todo.complete ? 'line-through' : 'none';
+
+	node.addEventListener('click', () => {
+		document.getElementById('goals').innerHTML = '';
+		document.getElementById('todos').innerHTML = '';
+		store.dispatch(toggleTodoAction(todo.id));
+	});
+
+	document.getElementById('todos').appendChild(node);
+};
 let addGoal = () => {
-	const input = document.getElementById('goal');
-	const goalsListUl = document.getElementById('goals');
-	const name = input.value;
+	let input = document.getElementById('goal');
+	let name = input.value;
 	input.value = '';
-	let newGoalLiElement = createEl('li');
-	newGoalLiElement.className = 'addedGoalItem';
-	newGoalLiElement.innerHTML = name;
-	if (name) {
-		goalsListUl.appendChild(newGoalLiElement);
-		store.dispatch(
-			addGoalAction({
-				id: generateId(),
-				name
-			})
-		);
-	}
+
+	store.dispatch(
+		addGoalAction({
+			id: generateId(),
+			name
+		})
+	);
+};
+let addGoalToDOM = (goal) => {
+	//subscribe this fxn to store as listener, is called when state changes
+	let removeBtn = createRemoveBtn(() => {
+		store.dispatch(removeGoalAction(goal.id));
+	});
+	const node = document.createElement('li');
+	const text = document.createTextNode(goal.name);
+	node.appendChild(text);
+	node.appendChild(removeBtn);
+
+	document.getElementById('goals').appendChild(node);
 };
 
-let toggleTodo = (e) => {
-	if (e.target.className === 'addedTodoItem') {
-		let id = e.target.id;
-		store.dispatch(toggleTodoAction(id)); //this dispatch toggle completion state of todo item
-		let itemToToggle = store.getState().todos.filter((todo) => todo.id === id);
-		let completionTest = itemToToggle[0].complete;
-
-		if (completionTest) {
-			e.target.style.textDecoration = 'line-through';
-		} else {
-			e.target.style.textDecoration = 'none';
-		}
-	}
-};
-
-let toggleGoal = (e) => {
-	if (e.target.className === 'addedGoalItem') {
-		console.log('you clicked');
-		e.target.style.textDecoration = 'line-through';
-	}
-};
 document.getElementById('todoBtn').addEventListener('click', addTodo);
-
 document.getElementById('goalBtn').addEventListener('click', addGoal);
-
-document.getElementById('todos').addEventListener('click', toggleTodo);
-
-// store.dispatch(addTodoAction({
-// 	id: 0,
-// 	name: 'Walk the dog',
-// 	complete: false,
-// }))
-
-// store.dispatch(addTodoAction({
-// 	id: 1,
-// 	name: 'Wash the car',
-// 	complete: false,
-// }))
-
-// store.dispatch(addTodoAction({
-// 	id: 2,
-// 	name: 'Go to the gym',
-// 	complete: true,
-// }))
-
-// store.dispatch(removeTodoAction(1))
-
-// store.dispatch(toggleTodoAction(0))
-
-// store.dispatch(addGoalAction({
-// 	id: 0,
-// 	name: 'Learn Redux'
-// }))
-
-// store.dispatch(addGoalAction({
-// 	id: 1,
-// 	name: 'Lose 20 pounds'
-// }))
-
-// store.dispatch(removeGoalAction(0))
