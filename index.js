@@ -1,34 +1,34 @@
 //what Library Code will look like
 
-function CreateStore(reducer) {
-	let state; //initial state is undefined
+// function CreateStore(reducer) {
+// 	let state; //initial state is undefined
 
-	let listeners = []; //stores listeners that listen for change in state
+// 	let listeners = []; //stores listeners that listen for change in state and called when state changes;
 
-	const getState = () => state; //returns current state in store
+// 	const getState = () => state; //returns current state in store
 
-	const subscribe = (listener) => {
-		//add listeners and also returns a function,
-		//that can be used to unsubscribe that listener
-		listeners.push(listener);
-		return () => {
-			listeners = listeners.filter((l) => l !== listener);
-		};
-	};
+// 	const subscribe = (listener) => {
+// 		//add listeners and also returns a function,
+// 		//that can be used to unsubscribe that listener
+// 		listeners.push(listener);
+// 		return () => {
+// 			listeners = listeners.filter((l) => l !== listener);
+// 		};
+// 	};
 
-	const dispatch = (action) => {
-		//dispatch an action by making the required update
-		//to state using the reducer passed when store was created.
-		state = reducer(state, action);
-		listeners.forEach((listener) => listener());
-	};
+// 	const dispatch = (action) => {
+// 		//dispatch an action by making the required update
+// 		//to state using the reducer passed when store was created.
+// 		state = reducer(state, action);
+// 		listeners.forEach((listener) => listener());
+// 	};
 
-	return {
-		getState,
-		subscribe,
-		dispatch
-	};
-}
+// 	return {
+// 		getState,
+// 		subscribe,
+// 		dispatch
+// 	};
+// }
 
 // App Code
 const ADD_TODO = 'ADD_TODO';
@@ -109,7 +109,7 @@ function app(state = {}, action) {
 	};
 }
 
-const store = CreateStore(app);
+const store = Redux.createStore(app);
 
 store.subscribe(() => {
 	console.log('The new state is: ', store.getState());
