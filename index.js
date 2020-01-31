@@ -102,14 +102,29 @@ function goals(state = [], action) {
 	}
 }
 
-function app(state = {}, action) {
-	return {
-		todos: todos(state.todos, action),
-		goals: goals(state.goals, action)
-	};
-}
+// function app(state = {}, action) {
+// 	return {
+// 		todos: todos(state.todos, action),
+// 		goals: goals(state.goals, action)
+// 	};
+// }
+let checkAndDispatch = (store, action) => {
+	if (
+		action.type === ADD_TODO && 
+		action.todo.name.toLowerCase().includes("bitcion")
+	)  return alert("Bad Idea");
+	
+	if (
+		action.type === ADD_GOAL && 
+		action.goal.name.toLowerCase().includes("bitcion")
+	)  return alert("Bad Idea");
 
-const store = Redux.createStore(app);
+	return store.dispatch(action)
+}
+const store = Redux.createStore(Redux.combineReducers({
+	todos,
+	goals,
+}));
 
 store.subscribe(() => {
 	console.log('The new state is: ', store.getState());
