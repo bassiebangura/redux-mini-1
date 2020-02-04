@@ -111,18 +111,25 @@ function goals(state = [], action) {
 
 let checker = (store) => (next) => (action) => {
 	if (
-				action.type === ADD_TODO && 
-				action.todo.name.toLowerCase().includes("bitcoin")
-			)  return alert("Nope! Bad Idea");
+		action.type === ADD_TODO && 
+		action.todo.name.toLowerCase().includes("bitcoin")
+		)  return alert("Nope! Bad Idea");
 			
-			if (
-				action.type === ADD_GOAL && 
-				action.goal.name.toLowerCase().includes("bitcoin")
-			)  return alert("Nope! Bad Idea");
+	if (
+		action.type === ADD_GOAL && 
+		action.goal.name.toLowerCase().includes("bitcoin")
+		)  return alert("Nope! Bad Idea");
 
-			return next(action)
+		return next(action)
 }
-
+const logger = (store) => (next) => (action) => {
+	console.group(action.type)
+		console.log("The action:", action)
+		const result = next(action)
+	console.log("The new state:", store.getState())
+	console.groupEnd()
+	return result
+}
 // function checker (store) {
 // 	return function(next) {
 // 		return function (action){
@@ -133,10 +140,10 @@ let checker = (store) => (next) => (action) => {
 const store = Redux.createStore(Redux.combineReducers({
 	todos,
 	goals,
-}), Redux.applyMiddleware(checker));
+}), Redux.applyMiddleware(checker, logger));
 
 store.subscribe(() => {
-	console.log('The new state is: ', store.getState());
+	// console.log('The new state is: ', store.getState());
 	const { todos, goals } = store.getState();
 
 	//resets part of UI that can change when an event occurs
